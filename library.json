@@ -1,0 +1,20 @@
+{
+  "name": "NMEA2000_twai",
+  "keywords": "nmea 2000, nmea, 2000, communication, bus, boat, marine",
+  "description": "ESP32 TWAI driver for NMEA2000 library",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/Aeolionics-NMEA2000/NMEA2000_twai.git"
+  },
+  "authors":
+  {
+    "name": "Jeremy Boynes",
+    "url": "http://www.aeolionics.com",
+    "maintainer": true
+  },
+  "version": "0.1.0",
+  "license": "MIT",
+  "frameworks": "*",
+  "platforms": "espressif32"
+}
