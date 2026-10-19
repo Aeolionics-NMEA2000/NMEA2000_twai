@@ -27,6 +27,9 @@ public:
 protected:
     bool CANOpen() override {
         twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(tx_pin, rx_pin, TWAI_MODE_NORMAL);
+        // A deeper receive queue than the default 5, so a burst on a busy bus, or the loop pausing
+        // to save to NVS, doesn't overflow it and lose frames such as an address claim.
+        g_config.rx_queue_len = 64;
         twai_timing_config_t t_config = TWAI_TIMING_CONFIG_250KBITS();
         twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
@@ -35,6 +38,7 @@ protected:
         }
 
         if (twai_start() != ESP_OK) {
+            twai_driver_uninstall();  // Don't leave the driver installed if it couldn't start.
             return false;
         }
 
@@ -53,7 +57,11 @@ protected:
         message.data_length_code = len;
         memcpy(message.data, buf, len);
 
-        return twai_transmit(&message, pdMS_TO_TICKS(1000)) == ESP_OK;
+        // Wait only briefly for queue space when the caller wants the frame sent; otherwise return
+        // at once and let the library buffer and retry it, rather than blocking the loop for up to
+        // a second on a stalled bus.
+        auto timeout = wait_sent ? pdMS_TO_TICKS(20) : 0;
+        return twai_transmit(&message, timeout) == ESP_OK;
     }
 
     bool CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf) override {
