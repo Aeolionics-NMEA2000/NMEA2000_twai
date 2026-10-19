@@ -30,6 +30,11 @@ protected:
         // A deeper receive queue than the default 5, so a burst on a busy bus, or the loop pausing
         // to save to NVS, doesn't overflow it and lose frames such as an address claim.
         g_config.rx_queue_len = 64;
+#if CONFIG_TWAI_ISR_IN_IRAM
+        // The ISR is in IRAM, so let it keep running while the flash cache is off (NVS writes);
+        // otherwise frames arriving during a write are lost once the controller's FIFO fills.
+        g_config.intr_flags |= ESP_INTR_FLAG_IRAM;
+#endif
         twai_timing_config_t t_config = TWAI_TIMING_CONFIG_250KBITS();
         twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
