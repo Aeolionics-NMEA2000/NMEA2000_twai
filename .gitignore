@@ -1,3 +1,12 @@
 .pio
 .idea
 
+
+# Build output
+build/
+
+# IDEs and desktop files
+.idea/
+.vscode/
+*.iml
+.DS_Store
